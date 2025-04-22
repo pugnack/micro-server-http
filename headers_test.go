@@ -40,6 +40,12 @@ func TestAppendResponseMetadata(t *testing.T) {
 			expected: context.WithValue(context.Background(), rspMetadataKey{}, nil),
 		},
 		{
+			name:     "context with incorrect type in response metadata value",
+			ctx:      context.WithValue(context.Background(), rspMetadataKey{}, struct{}{}),
+			md:       metadata.Pairs("key1", "val1"),
+			expected: context.WithValue(context.Background(), rspMetadataKey{}, struct{}{}),
+		},
+		{
 			name:     "context with response metadata value, but nil metadata",
 			ctx:      context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: nil}),
 			md:       metadata.Pairs("key1", "val1"),
@@ -83,6 +89,48 @@ func TestAppendResponseMetadata(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			AppendResponseMetadata(tt.ctx, tt.md)
 			require.Equal(t, tt.expected, tt.ctx)
+		})
+	}
+}
+
+func TestGetResponseMetadata(t *testing.T) {
+	tests := []struct {
+		name     string
+		ctx      context.Context
+		expected metadata.Metadata
+	}{
+		{
+			name:     "context without response metadata key",
+			ctx:      context.Background(),
+			expected: metadata.Metadata{},
+		},
+		{
+			name:     "context with nil response metadata value",
+			ctx:      context.WithValue(context.Background(), rspMetadataKey{}, nil),
+			expected: metadata.Metadata{},
+		},
+		{
+			name:     "context with incorrect type in response metadata value",
+			ctx:      context.WithValue(context.Background(), rspMetadataKey{}, &struct{}{}),
+			expected: metadata.Metadata{},
+		},
+		{
+			name:     "context with response metadata value, but nil metadata",
+			ctx:      context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: nil}),
+			expected: metadata.Metadata{},
+		},
+		{
+			name: "valid metadata",
+			ctx: context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{
+				m: metadata.Pairs("key1", "value1"),
+			}),
+			expected: metadata.Pairs("key1", "value1"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require.Equal(t, tt.expected, getResponseMetadata(tt.ctx))
 		})
 	}
 }
