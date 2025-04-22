@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -18,63 +17,63 @@ func TestAppendResponseMetadata(t *testing.T) {
 	}{
 		{
 			name:     "nil metadata",
-			ctx:      context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{h: http.Header{}}),
+			ctx:      context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: metadata.Metadata{}}),
 			md:       nil,
-			expected: context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{h: http.Header{}}),
+			expected: context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: metadata.Metadata{}}),
 		},
 		{
 			name:     "empty metadata",
-			ctx:      context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{h: http.Header{}}),
+			ctx:      context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: metadata.Metadata{}}),
 			md:       metadata.Metadata{},
-			expected: context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{h: http.Header{}}),
+			expected: context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: metadata.Metadata{}}),
 		},
 		{
-			name:     "context without response header key",
+			name:     "context without response metadata key",
 			ctx:      context.Background(),
 			md:       metadata.Pairs("key1", "val1"),
 			expected: context.Background(),
 		},
 		{
-			name:     "context with nil response header value",
-			ctx:      context.WithValue(context.Background(), rspHeaderKey{}, nil),
+			name:     "context with nil response metadata value",
+			ctx:      context.WithValue(context.Background(), rspMetadataKey{}, nil),
 			md:       metadata.Pairs("key1", "val1"),
-			expected: context.WithValue(context.Background(), rspHeaderKey{}, nil),
+			expected: context.WithValue(context.Background(), rspMetadataKey{}, nil),
 		},
 		{
-			name:     "context with response header value, but nil http.Header",
-			ctx:      context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{h: nil}),
+			name:     "context with response metadata value, but nil metadata",
+			ctx:      context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: nil}),
 			md:       metadata.Pairs("key1", "val1"),
-			expected: context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{h: nil}),
+			expected: context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: nil}),
 		},
 		{
 			name: "basic metadata append",
-			ctx:  context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{h: http.Header{}}),
+			ctx:  context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: metadata.Metadata{}}),
 			md:   metadata.Pairs("key1", "val1"),
-			expected: context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{
-				h: http.Header{
-					"Key1": []string{"val1"},
+			expected: context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{
+				m: metadata.Metadata{
+					"key1": []string{"val1"},
 				},
 			}),
 		},
 		{
 			name: "multiple values for same key",
-			ctx:  context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{h: http.Header{}}),
+			ctx:  context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: metadata.Metadata{}}),
 			md:   metadata.Pairs("key1", "val1", "key1", "val2"),
-			expected: context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{
-				h: http.Header{
-					"Key1": []string{"val1", "val2"},
+			expected: context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{
+				m: metadata.Metadata{
+					"key1": []string{"val1", "val2"},
 				},
 			}),
 		},
 		{
 			name: "multiple values for different keys",
-			ctx:  context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{h: http.Header{}}),
+			ctx:  context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{m: metadata.Metadata{}}),
 			md:   metadata.Pairs("key1", "val1", "key1", "val2", "key2", "val3", "key2", "val4", "key3", "val5"),
-			expected: context.WithValue(context.Background(), rspHeaderKey{}, &rspHeaderVal{
-				h: http.Header{
-					"Key1": []string{"val1", "val2"},
-					"Key2": []string{"val3", "val4"},
-					"Key3": []string{"val5"},
+			expected: context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{
+				m: metadata.Metadata{
+					"key1": []string{"val1", "val2"},
+					"key2": []string{"val3", "val4"},
+					"key3": []string{"val5"},
 				},
 			}),
 		},

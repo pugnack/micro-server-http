@@ -2,36 +2,33 @@ package http
 
 import (
 	"context"
-	"net/http"
 
 	"go.unistack.org/micro/v4/metadata"
 )
 
 type (
-	rspHeaderKey struct{}
-	rspHeaderVal struct {
-		h http.Header
+	rspMetadataKey struct{}
+	rspMetadataVal struct {
+		m metadata.Metadata
 	}
 )
 
-// AppendResponseMetadata adds metadata entries to an http.Header stored in the context.
-// It expects the context to have a *rspHeaderVal value under the rspHeaderKey{} key.
+// AppendResponseMetadata adds metadata entries to metadata.Metadata stored in the context.
+// It expects the context to contain a *rspMetadataVal value under the rspMetadataKey{} key.
 // If the value is missing or invalid, the function does nothing.
 //
-// Note: This function is not thread-safe.
+// Note: this function is not thread-safe. Synchronization is required if used from multiple goroutines.
 func AppendResponseMetadata(ctx context.Context, md metadata.Metadata) {
 	if md == nil {
 		return
 	}
 
-	header, ok := ctx.Value(rspHeaderKey{}).(*rspHeaderVal)
-	if !ok || header == nil || header.h == nil {
+	val, ok := ctx.Value(rspMetadataKey{}).(*rspMetadataVal)
+	if !ok || val == nil || val.m == nil {
 		return
 	}
 
 	for key, values := range md {
-		for _, value := range values {
-			header.h.Add(key, value)
-		}
+		val.m.Append(key, values...)
 	}
 }
