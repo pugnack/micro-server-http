@@ -38,20 +38,6 @@ type (
 	}
 )
 
-type (
-	rspHeaderKey struct{}
-	rspHeaderVal struct {
-		h http.Header
-	}
-)
-
-// SetRspHeader add response headers
-func SetRspHeader(ctx context.Context, h http.Header) {
-	if rsp, ok := ctx.Value(rspHeaderKey{}).(*rspHeaderVal); ok {
-		rsp.h = h
-	}
-}
-
 // SetRspCode saves response code in context, must be used by handler to specify http code
 func SetRspCode(ctx context.Context, code int) {
 	if rsp, ok := ctx.Value(rspCodeKey{}).(*rspCodeVal); ok {
