@@ -2,65 +2,10 @@ package http
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"go.unistack.org/micro/v4/server"
 )
-
-// SetError pass error to caller
-func SetError(err interface{}) error {
-	return &Error{err: err}
-}
-
-// GetError return underline error
-func GetError(err interface{}) interface{} {
-	if verr, ok := err.(*Error); ok {
-		return verr.err
-	}
-	return err
-}
-
-// Error struct holds error
-type Error struct {
-	err interface{}
-}
-
-// Error func for error interface
-func (err *Error) Error() string {
-	return fmt.Sprintf("%v", err.err)
-}
-
-type (
-	rspCodeKey struct{}
-	rspCodeVal struct {
-		code int
-	}
-)
-
-// SetRspCode saves response code in context, must be used by handler to specify http code
-func SetRspCode(ctx context.Context, code int) {
-	if rsp, ok := ctx.Value(rspCodeKey{}).(*rspCodeVal); ok {
-		rsp.code = code
-	}
-}
-
-// getRspHeader get http.Header from context
-func getRspHeader(ctx context.Context) http.Header {
-	if rsp, ok := ctx.Value(rspHeaderKey{}).(*rspHeaderVal); ok {
-		return rsp.h
-	}
-	return nil
-}
-
-// GetRspCode used internally by generated http server handler
-func GetRspCode(ctx context.Context) int {
-	code := int(200)
-	if rsp, ok := ctx.Value(rspCodeKey{}).(*rspCodeVal); ok {
-		code = rsp.code
-	}
-	return code
-}
 
 type middlewareKey struct{}
 
