@@ -124,7 +124,7 @@ func TestGetResponseMetadata(t *testing.T) {
 			ctx: context.WithValue(context.Background(), rspMetadataKey{}, &rspMetadataVal{
 				m: metadata.Pairs("key1", "value1"),
 			}),
-			expected: metadata.Pairs("key1", "value1"),
+			expected: metadata.Metadata{"key1": {"value1"}},
 		},
 	}
 
